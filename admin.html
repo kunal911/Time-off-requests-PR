@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>PTO Request Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+  <section id="admin-login" class="gate" aria-labelledby="admin-login-title">
+    <div class="gate-panel">
+      <div class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 11l3 3L22 4"></path>
+          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+        </svg>
+      </div>
+      <p class="eyebrow">Internal dashboard</p>
+      <h1 id="admin-login-title">PTO Requests</h1>
+      <p class="gate-copy">Assign requests, record supervisor decisions, and send employee approval or denial emails.</p>
+
+      <form id="admin-login-form" class="login-form">
+        <label for="admin-password">Dashboard password</label>
+        <div class="password-row">
+          <input id="admin-password" type="password" autocomplete="current-password" placeholder="Enter admin password">
+        </div>
+        <p id="admin-login-error" class="form-error" role="alert" aria-live="polite"></p>
+        <button class="primary-button" type="submit">Open dashboard</button>
+      </form>
+    </div>
+  </section>
+
+  <div id="admin-app" class="app hidden">
+    <header class="topbar">
+      <div class="topbar-title">
+        <div class="brand-mark small" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 11l3 3L22 4"></path>
+            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+          </svg>
+        </div>
+        <div>
+          <p class="eyebrow">Time off workflow</p>
+          <h1>PTO Request Dashboard</h1>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <a class="ghost-button" href="index.html">Calendar</a>
+        <button id="admin-refresh" class="ghost-button" type="button">Refresh</button>
+        <button id="admin-logout" class="ghost-button" type="button">Sign out</button>
+      </div>
+    </header>
+
+    <main class="admin-layout">
+      <section class="admin-toolbar">
+        <div>
+          <h2>Requests</h2>
+          <p id="request-count">Loading requests...</p>
+        </div>
+        <div class="filter-row">
+          <label class="select-wrap">
+            <span class="sr-only">Status filter</span>
+            <select id="status-filter">
+              <option value="active">Active</option>
+              <option value="new">New</option>
+              <option value="assigned">Assigned</option>
+              <option value="supervisor-approved">Supervisor approved</option>
+              <option value="supervisor-denied">Supervisor denied</option>
+              <option value="final">Finalized</option>
+              <option value="all">All</option>
+            </select>
+          </label>
+          <label class="search-wrap">
+            <span class="sr-only">Search requests</span>
+            <input id="request-search" type="search" placeholder="Search employee or supervisor">
+          </label>
+        </div>
+      </section>
+
+      <div id="admin-alert" class="notice hidden" role="status"></div>
+
+      <section class="request-workspace">
+        <div class="request-list-wrap">
+          <div id="admin-loading" class="state-card">Loading requests...</div>
+          <div id="request-list" class="request-list hidden" aria-label="PTO requests"></div>
+        </div>
+
+        <aside class="request-panel" aria-labelledby="selected-request-title">
+          <p class="eyebrow">Selected request</p>
+          <h2 id="selected-request-title">No request selected</h2>
+          <div id="selected-request-details" class="selected-details">
+            <p class="empty-note">Choose a request to assign, approve, deny, or email the employee.</p>
+          </div>
+        </aside>
+      </section>
+    </main>
+  </div>
+
+  <script src="admin.js"></script>
+</body>
+</html>
