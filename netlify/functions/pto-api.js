@@ -68,7 +68,14 @@ async function callAppsScript(action, payload) {
   try {
     result = JSON.parse(text);
   } catch {
-    throw new Error("Google Apps Script returned an unreadable response.");
+    const preview = text
+      .replace(/\s+/g, " ")
+      .slice(0, 240);
+    throw new Error(
+      `Google Apps Script returned an unreadable response. Status ${upstream.status}. ` +
+      `Confirm PTO_BACKEND_URL is the Web App /exec URL and access is set to Anyone. ` +
+      `Response started with: ${preview || "(empty response)"}`
+    );
   }
 
   if (!upstream.ok || result.ok === false) {
