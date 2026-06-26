@@ -52,7 +52,8 @@ async function loadRequests() {
   try {
     const result = await callApi("listRequests");
     requests = result.requests || [];
-    selectedRowNumber ||= requests[0]?.rowNumber || null;
+    const activeRequests = requests.filter(isApprovalQueueRequest);
+    selectedRowNumber ||= activeRequests[0]?.rowNumber || requests[0]?.rowNumber || null;
     renderRequests();
     renderSelectedRequest();
     showAlert("");
@@ -64,19 +65,29 @@ async function loadRequests() {
 }
 
 function renderRequests() {
-  const list = document.getElementById("request-list");
-  const filtered = getFilteredRequests();
+  const activeList = document.getElementById("active-request-list");
+  const previousList = document.getElementById("previous-request-list");
+  const { active, previous } = getRequestGroups();
 
   document.getElementById("request-count").textContent =
-    `${filtered.length} shown of ${requests.length} request${requests.length === 1 ? "" : "s"}`;
+    `${active.length} need approval, ${previous.length} previous request${previous.length === 1 ? "" : "s"}`;
+  document.getElementById("active-count").textContent = active.length;
+  document.getElementById("previous-count").textContent = previous.length;
 
-  if (!filtered.length) {
-    list.innerHTML = `<div class="state-card">No requests match the current filters.</div>`;
-    list.classList.remove("hidden");
-    return;
-  }
+  activeList.innerHTML = active.length
+    ? active.map(renderRequestCard).join("")
+    : `<div class="empty-list">No requests need approval for the current filters.</div>`;
 
-  list.innerHTML = filtered.map((request) => `
+  previousList.innerHTML = previous.length
+    ? previous.map(renderRequestCard).join("")
+    : `<div class="empty-list">No previous requests match the search.</div>`;
+
+  bindRequestCards();
+  document.getElementById("request-sections").classList.remove("hidden");
+}
+
+function renderRequestCard(request) {
+  return `
     <button class="request-card ${request.rowNumber === selectedRowNumber ? "selected" : ""}" type="button" data-row="${request.rowNumber}">
       <div>
         <strong>${escapeHtml(request.employeeName || "Unknown employee")}</strong>
@@ -94,17 +105,17 @@ function renderRequests() {
         <span>${escapeHtml(request.supervisorEmail || "")}</span>
       </div>
     </button>
-  `).join("");
+  `;
+}
 
-  list.querySelectorAll(".request-card").forEach((button) => {
+function bindRequestCards() {
+  document.querySelectorAll(".request-card").forEach((button) => {
     button.addEventListener("click", () => {
       selectedRowNumber = Number(button.dataset.row);
       renderRequests();
       renderSelectedRequest();
     });
   });
-
-  list.classList.remove("hidden");
 }
 
 function renderSelectedRequest() {
@@ -194,18 +205,14 @@ async function handleRequestAction(action, request) {
   }
 }
 
-function getFilteredRequests() {
+function getRequestGroups() {
   const statusFilter = document.getElementById("status-filter").value;
   const query = document.getElementById("request-search").value.trim().toLowerCase();
 
-  return requests.filter((request) => {
+  const matches = requests.filter((request) => {
     const status = String(request.statusKey || "").toLowerCase();
-    const active = !["final-approved", "final-denied"].includes(status);
-    const matchesStatus =
-      statusFilter === "all" ||
-      (statusFilter === "active" && active) ||
-      (statusFilter === "final" && !active) ||
-      status === statusFilter;
+    const active = isApprovalQueueRequest(request);
+    const matchesStatus = !active || statusFilter === "active" || statusFilter === "all-active" || status === statusFilter;
 
     const haystack = [
       request.employeeName,
@@ -217,6 +224,16 @@ function getFilteredRequests() {
 
     return matchesStatus && (!query || haystack.includes(query));
   });
+
+  return {
+    active: matches.filter(isApprovalQueueRequest),
+    previous: matches.filter((request) => !isApprovalQueueRequest(request)),
+  };
+}
+
+function isApprovalQueueRequest(request) {
+  const status = String(request.statusKey || "").toLowerCase();
+  return !["final-approved", "final-denied"].includes(status);
 }
 
 async function callApi(action, payload = {}, requireAuth = true) {
@@ -239,7 +256,7 @@ async function callApi(action, payload = {}, requireAuth = true) {
 
 function setLoading(isLoading) {
   document.getElementById("admin-loading").classList.toggle("hidden", !isLoading);
-  document.getElementById("request-list").classList.toggle("hidden", isLoading);
+  document.getElementById("request-sections").classList.toggle("hidden", isLoading);
 }
 
 function setPanelBusy(isBusy) {
