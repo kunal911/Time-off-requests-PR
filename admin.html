@@ -64,15 +64,14 @@
         </div>
         <div class="filter-row">
           <label class="select-wrap">
-            <span class="sr-only">Status filter</span>
+            <span class="sr-only">Approval queue filter</span>
             <select id="status-filter">
-              <option value="active">Active</option>
+              <option value="active">Needs approval</option>
               <option value="new">New</option>
               <option value="assigned">Assigned</option>
               <option value="supervisor-approved">Supervisor approved</option>
               <option value="supervisor-denied">Supervisor denied</option>
-              <option value="final">Finalized</option>
-              <option value="all">All</option>
+              <option value="all-active">All active</option>
             </select>
           </label>
           <label class="search-wrap">
@@ -87,7 +86,31 @@
       <section class="request-workspace">
         <div class="request-list-wrap">
           <div id="admin-loading" class="state-card">Loading requests...</div>
-          <div id="request-list" class="request-list hidden" aria-label="PTO requests"></div>
+          <div id="request-sections" class="request-sections hidden" aria-label="PTO requests">
+            <section class="request-section" aria-labelledby="active-requests-title">
+              <div class="request-section-header">
+                <div>
+                  <p class="eyebrow">Approval queue</p>
+                  <h3 id="active-requests-title">Needs approval</h3>
+                </div>
+                <span id="active-count" class="section-count">0</span>
+              </div>
+              <div id="active-request-list" class="request-list"></div>
+            </section>
+
+            <section class="request-section previous" aria-labelledby="previous-requests-title">
+              <details open>
+                <summary>
+                  <span>
+                    <span class="eyebrow">History</span>
+                    <strong id="previous-requests-title">Previous requests</strong>
+                  </span>
+                  <span id="previous-count" class="section-count">0</span>
+                </summary>
+                <div id="previous-request-list" class="request-list"></div>
+              </details>
+            </section>
+          </div>
         </div>
 
         <aside class="request-panel" aria-labelledby="selected-request-title">
